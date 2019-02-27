@@ -21,8 +21,20 @@ class FriendContainer extends React.Component {
     axios
     .get('http://localhost:5000/friends')
     .then(res => {
-      console.log('Response', res);
+      // console.log('Response', res);
       this.setState({friends: res.data});
+    })
+    .catch(err => {
+      // console.log('There was an error', err);
+    });
+  }
+
+  deleteFriend(id) {
+    console.log('deleting :)');
+    axios.delete(`http://localhost:5000/friends/${id}`)
+    .then(res => {
+      console.log('Response', res);
+      this.getFriends();
     })
     .catch(err => {
       console.log('There was an error', err);
@@ -33,7 +45,7 @@ class FriendContainer extends React.Component {
     this.setState({
       [e.target.name]: e.target.value
     });
-    console.log(e.target);
+    // console.log(e.target);
   }
 
   handleSubmit = e => {
@@ -41,12 +53,12 @@ class FriendContainer extends React.Component {
     console.log('submitting');
     axios.post('http://localhost:5000/friends', {name: this.state.nameVal, age: this.state.ageVal, email: this.state.emailVal})
     .then(res => {
-      console.log('Response', res);
+      // console.log('Response', res);
       this.setState({nameVal: '', ageVal: '', emailVal: ''});
       this.getFriends();
     })
     .catch(err => {
-      console.log('There was an error', err);
+      // console.log('There was an error', err);
     });
   }  
 
@@ -65,6 +77,7 @@ class FriendContainer extends React.Component {
             <div className="friend">
               <p>{f.name}, {f.age} years old</p>
               <p>Contact: {f.email}</p>
+              <button onClick={() => this.deleteFriend(f.id)}>Delete this friendship</button>
             </div>
           );
         })}
