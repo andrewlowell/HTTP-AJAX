@@ -1,0 +1,9 @@
+* {
+  box-sizing: border-box;
+}
+.friend {
+  padding: 10px;
+  border: 1px solid black;
+  margin: 20px;
+  max-width: 500px;
+}
