@@ -1,7 +1,7 @@
 * {
   box-sizing: border-box;
 }
-.friend {
+.friend, .friendFormEdit {
   padding: 10px;
   border: 1px solid black;
   margin: 20px;

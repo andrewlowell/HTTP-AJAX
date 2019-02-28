@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import FriendForm from './FriendForm';
+import FriendFormEdit from './FriendFormEdit';
+import Friend from './Friend';
 
 class FriendContainer extends React.Component {
   constructor(props) {
@@ -9,7 +11,11 @@ class FriendContainer extends React.Component {
       friends: [],
       nameVal: '',
       ageVal: '',
-      emailVal: ''
+      emailVal: '',
+      nameValEdit: '',
+      ageValEdit: '',
+      emailValEdit: '',
+      editing: ''
     }
   }
 
@@ -29,15 +35,36 @@ class FriendContainer extends React.Component {
     });
   }
 
-  deleteFriend(id) {
-    console.log('deleting :)');
+  deleteFriend = id => {
+    // console.log('deleting :)');
     axios.delete(`http://localhost:5000/friends/${id}`)
     .then(res => {
-      console.log('Response', res);
+      // console.log('Response', res);
       this.getFriends();
     })
     .catch(err => {
-      console.log('There was an error', err);
+      console.log('There was an error in deleteFriend:', err);
+    });
+  }
+
+  editFriend = id => {
+    this.setState({
+      editing: id,
+      friends: this.state.friends.map(f => {
+        if (f.id === id) {
+          this.setState({nameValEdit: f.name, ageValEdit: f.age, emailValEdit: f.email});
+          return {
+            id: f.id,
+            name: f.name,
+            age: f.age,
+            email: f.email,
+            editing: true
+          };
+        }
+        else {
+          return f;
+        }
+      })
     });
   }
 
@@ -48,12 +75,26 @@ class FriendContainer extends React.Component {
     // console.log(e.target);
   }
 
-  handleSubmit = e => {
+  handleEdit = e => {
     e.preventDefault();
-    console.log('submitting');
-    axios.post('http://localhost:5000/friends', {name: this.state.nameVal, age: this.state.ageVal, email: this.state.emailVal})
+    // console.log('editing');
+    axios.put(`http://localhost:5000/friends/${this.state.editing}`, {name: this.state.nameValEdit, age: this.state.ageValEdit, email: this.state.emailValEdit})
     .then(res => {
       // console.log('Response', res);
+      this.setState({nameValEdit: '', ageValEdit: '', emailValEdit: '', editing: ''});
+      this.getFriends();
+    })
+    .catch(err => {
+      // console.log('There was an error', err);
+    });
+  }
+
+  handleSubmit = e => {
+    e.preventDefault();
+    // console.log('submitting');
+    axios.post('http://localhost:5000/friends', {name: this.state.nameVal, age: this.state.ageVal, email: this.state.emailVal})
+    .then(res => {
+      console.log('Response', res);
       this.setState({nameVal: '', ageVal: '', emailVal: ''});
       this.getFriends();
     })
@@ -61,6 +102,8 @@ class FriendContainer extends React.Component {
       // console.log('There was an error', err);
     });
   }  
+
+  
 
   render() {
     return (
@@ -73,13 +116,16 @@ class FriendContainer extends React.Component {
           emailVal={this.state.emailVal}
         />
         {this.state.friends.map(f => {
-          return (
-            <div className="friend">
-              <p>{f.name}, {f.age} years old</p>
-              <p>Contact: {f.email}</p>
-              <button onClick={() => this.deleteFriend(f.id)}>Delete this friendship</button>
-            </div>
-          );
+          if (f.editing) {
+            return <FriendFormEdit
+              handleChange={this.handleChange}
+              handleEdit={this.handleEdit}
+              nameValEdit={this.state.nameValEdit}
+              ageValEdit={this.state.ageValEdit}
+              emailValEdit={this.state.emailValEdit}
+            />
+          }
+          return ( <Friend name={f.name} age={f.age} email={f.email} id={f.id} deleteFriend={this.deleteFriend} editFriend={this.editFriend} /> );
         })}
       </div>
     );
